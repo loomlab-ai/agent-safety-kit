@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Smoke check
+        run: |
+          set -eu
+          ls
+          test -f README.md
+          test -f skills/permission-gate/SKILL.md
+          test -f skills/git-guard/SKILL.md
+          test -f skills/money-denylist/SKILL.md
+          test -f skills/secret-scrub/SKILL.md
