@@ -1,12 +1,12 @@
 # agent-safety-kit
 
-agent-safety-kit is a docs-first MIT-licensed Agent Skills kit of soft HITL gates (permission-gate, git-guard, money-denylist, and secret-scrub) for people running local and IDE Markdown skill coding agents such as Cursor and Claude-style tools, with the checks written only in SKILL.md.
+agent-safety-kit is an MIT-licensed, docs-first Agent Skills kit of soft HITL gates (permission-gate, git-guard, money-denylist, and secret-scrub) for local and IDE coding agents that load Markdown skills, such as Cursor and Claude-style tools.
 
 [简体中文](README.zh-CN.md)
 
 ## Purpose
 
-Local coding agents often run `git push --force`, `rm -rf`, or a payment checkout as soon as they are asked, with no second check. agent-safety-kit gives them a shared vocabulary and permission cards so they pause before delete, force-push, spend, or leak. It is a small open-source HITL skill pack you can fork and adapt. The checks are instructions in `SKILL.md`. There is no runtime binary, hook, or kernel interceptor. If the model ignores the skill, this repository does not hard-block the action.
+Local coding agents often run `git push --force`, `rm -rf`, or a payment checkout as soon as they are asked, with no second check. This kit gives them a shared vocabulary and permission cards so they pause before delete, force-push, spend, or leak. It is a small open-source HITL skill pack you can fork and adapt.
 
 ### Who this is for
 
@@ -20,48 +20,7 @@ Local coding agents often run `git push --force`, `rm -rf`, or a payment checkou
 
 ### Soft gates, not hard gates
 
-This kit is docs-first soft gates. Behavior lives in `SKILL.md`; the agent must read the skill and obey it. A skill line that says "hard-stop" (for example in money-denylist) is an instruction to the model, not a product interceptor.
-
-## Quick start
-
-```bash
-git clone https://github.com/loomlab-ai/agent-safety-kit.git
-cd agent-safety-kit
-mkdir -p .cursor/skills
-cp -R skills/permission-gate skills/git-guard skills/money-denylist skills/secret-scrub \
-  .cursor/skills/
-```
-
-1. Ask the agent:
-
-```text
-Clean the build artifacts. Something like rm -rf dist .cache is fine.
-```
-
-2. Expect a **PERMISSION GATE** card (What / Touches / Risk), not an immediate delete.
-3. Reply **Deny**, then ask it to list those directories. The agent stops the delete and follows the safer path.
-4. Optional: walk `demos/scenarios/01`–`04` for git force-push, a fake checkout, and a `ghp_xxxEXAMPLE` scrub.
-
-Full scripts: [demos/README.md](demos/README.md).
-
-## Features
-
-- **permission-gate** — generic HITL card before dangerous actions (Allow / Deny / Modify).
-- **git-guard** — gate force-push, protected branches, secret paths, and remote deletes.
-- **money-denylist** — the skill tells the agent to hard-stop or dual-confirm before any money movement. That line is still a soft gate.
-- **secret-scrub** — scan commits, PR bodies, chat, and pastes; redact or block without echoing secrets.
-- Docs-first soft gates in `SKILL.md`. This kit is not a substitute for product Auto-review, and it does not install a hook on `git push`.
-- Structured findings JSON at [schemas/findings.schema.json](schemas/findings.schema.json), with a sample at [demos/findings-example.json](demos/findings-example.json).
-- Table-read demos under [demos/](demos/README.md). Credentials in those files are obvious fixtures.
-
-| Skill | Role |
-| --- | --- |
-| [permission-gate](skills/permission-gate/SKILL.md) | Generic HITL card before dangerous actions (Allow / Deny / Modify) |
-| [git-guard](skills/git-guard/SKILL.md) | Gate force-push, protected branches, secret paths, remote deletes |
-| [money-denylist](skills/money-denylist/SKILL.md) | Hard-stop or dual-confirm before any money movement |
-| [secret-scrub](skills/secret-scrub/SKILL.md) | Scan commits / PR bodies / chat / pastes; redact or block without echoing secrets |
-
-One Allow is not forever: each risky step gets its own card. Scrub cards name categories and locations only. Use one skill or all four; they cross-link where useful.
+This kit is docs-first soft gates. Behavior lives in `SKILL.md`; the agent must read the skill and obey it. There is no runtime binary, hook, or kernel interceptor, and this kit does not install a hook on `git push`. If the model ignores the skill, this repository does not hard-block the action. A line that says "hard-stop" (for example in money-denylist) is an instruction to the model, not a product interceptor, and it is still a soft gate.
 
 ## Install
 
@@ -72,6 +31,7 @@ git clone https://github.com/loomlab-ai/agent-safety-kit.git
 cd agent-safety-kit
 
 # Cursor (project or user skills)
+mkdir -p .cursor/skills
 cp -R skills/permission-gate skills/git-guard skills/money-denylist skills/secret-scrub \
   .cursor/skills/
 
@@ -88,6 +48,33 @@ ln -s /path/to/agent-safety-kit/skills/permission-gate .cursor/skills/permission
 ```
 
 Point the agent at those folders the same way you load any other Agent Skill. If a skill does not appear, start a new session.
+
+## Quick start
+
+With the skills installed:
+
+1. Ask the agent:
+
+```text
+Clean the build artifacts. Something like rm -rf dist .cache is fine.
+```
+
+2. Expect a **PERMISSION GATE** card (What / Touches / Risk), not an immediate delete.
+3. Reply **Deny**, then ask it to list those directories. The agent stops the delete and follows the safer path.
+4. Optional: walk `demos/scenarios/01`–`04` for git force-push, a fake checkout, and a `ghp_xxxEXAMPLE` scrub.
+
+Full scripts: [demos/README.md](demos/README.md). These are table-read demos. Credentials in those files are obvious fixtures.
+
+## Features
+
+| Skill | Role |
+| --- | --- |
+| [permission-gate](skills/permission-gate/SKILL.md) | Generic HITL card before dangerous actions (Allow / Deny / Modify) |
+| [git-guard](skills/git-guard/SKILL.md) | Gate force-push, protected branches, secret paths, remote deletes |
+| [money-denylist](skills/money-denylist/SKILL.md) | Hard-stop or dual-confirm before any money movement (an instruction to the model; still a soft gate) |
+| [secret-scrub](skills/secret-scrub/SKILL.md) | Scan commits / PR bodies / chat / pastes; redact or block without echoing secrets |
+
+One Allow is not forever: each risky step gets its own card. Scrub cards name categories and locations only. Use one skill or all four; they cross-link where useful.
 
 ## Usage
 
@@ -129,24 +116,6 @@ Gate decisions can be saved as JSON and checked against [schemas/findings.schema
 | `recommendation` | What the agent should do next |
 
 `status` uses triage words common to audit-style skills: `confirmed` (a person or the gate already decided), `needs_review` (waiting on a person), `dismissed` (closed with no further action). A later adapter can place these HITL records beside an audit report. The schemas stay independent. This kit records safety-gate decisions.
-
-## FAQ
-
-### Who is agent-safety-kit for?
-
-People running local and IDE coding agents that load Markdown skills (Cursor, Claude-style skill folders, OpenCode, and similar). Copy the skill folders into the agent's skills directory. Products that already enforce hard approval before force-push, spend, destructive shell, or outbound send use their own runtime gate.
-
-### Is agent-safety-kit a hard gate that replaces Auto-review?
-
-agent-safety-kit is a docs-first soft gate. The checks live in `SKILL.md`. Auto-review and similar product cards are hard gates in a product runtime. This kit does not replace those gates and does not plug into them. If the model skips the skill, this repository does not block the action.
-
-### What if the model ignores the skill?
-
-Nothing in this kit intercepts the shell, git, or a payment API. The skill works when the agent reads it and follows it. Treat the cards as a shared procedure, not as a kernel or a required status check.
-
-### Does this kit block git push?
-
-It does not install a hook, a required check, or a permission rule that rejects `git push`. **git-guard** tells the agent to show a card before force-push, protected-branch writes, secret paths, and remote deletes. The agent can still ignore that instruction. Publishing this repository does not add a push blocker.
 
 ## License
 
