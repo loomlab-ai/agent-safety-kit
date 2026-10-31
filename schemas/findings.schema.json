@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/loomlab-ai/agent-safety-kit/schemas/findings.schema.json",
+  "title": "Agent Safety Kit findings",
+  "description": "Machine-readable HITL and safety-gate decisions from agent-safety-kit. Record a category and a location in evidence; keep secret values, tokens, and key material out of the document. status uses a small triage vocabulary (confirmed, needs_review, dismissed) so a later adapter can place these records beside an audit-style findings report. This schema stands alone and does not follow a vendor audit format.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "findings"],
+  "properties": {
+    "schema_version": {
+      "description": "Revision of this document shape. Current documents use \"1\".",
+      "type": "string",
+      "const": "1"
+    },
+    "findings": {
+      "description": "One record per gate decision or scrub hit.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "skill", "severity", "status", "evidence", "recommendation"],
+      "properties": {
+        "id": {
+          "description": "Stable id, unique within this document.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        },
+        "skill": {
+          "description": "Kit skill that raised the finding.",
+          "type": "string",
+          "enum": ["permission-gate", "git-guard", "money-denylist", "secret-scrub"]
+        },
+        "severity": {
+          "description": "info: note and continue. warn: review before the next risky step. block: do not perform the action.",
+          "type": "string",
+          "enum": ["info", "warn", "block"]
+        },
+        "status": {
+          "description": "confirmed: a person or the gate already decided. needs_review: waiting on a person. dismissed: closed with no further action.",
+          "type": "string",
+          "enum": ["confirmed", "needs_review", "dismissed"]
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "recommendation": {
+          "description": "What the agent should do next. Name the action; omit secret values.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    },
+    "evidence": {
+      "description": "Why the finding exists. Name the category and location. Omit secret values.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary"],
+      "properties": {
+        "summary": {
+          "description": "One or two sentences a reviewer can scan.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "location": {
+          "description": "Path, git ref, host, or field.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "category": {
+          "description": "Action class or secret category label, such as delete or github-token.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        }
+      }
+    }
+  }
+}

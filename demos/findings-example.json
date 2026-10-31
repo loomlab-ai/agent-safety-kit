@@ -1,0 +1,53 @@
+{
+  "schema_version": "1",
+  "findings": [
+    {
+      "id": "permission-gate-deny-rm-rf",
+      "skill": "permission-gate",
+      "severity": "block",
+      "status": "confirmed",
+      "evidence": {
+        "summary": "Human replied Deny on the permission card for a recursive delete of dist and .cache.",
+        "location": "/workspace/demo-app/dist",
+        "category": "delete"
+      },
+      "recommendation": "Stop the delete and do not retry it. List the directories if the human asks for a safer look."
+    },
+    {
+      "id": "secret-scrub-github-token-smoke",
+      "skill": "secret-scrub",
+      "severity": "block",
+      "status": "needs_review",
+      "evidence": {
+        "summary": "Staged script contains a GitHub token-like assignment. The matched value is omitted.",
+        "location": "scripts/smoke.sh:2",
+        "category": "github-token"
+      },
+      "recommendation": "Block the commit. Wait for a redact-and-retry, an unstage of that file, or an abort."
+    },
+    {
+      "id": "git-guard-warn-protected-branch",
+      "skill": "git-guard",
+      "severity": "warn",
+      "status": "needs_review",
+      "evidence": {
+        "summary": "Planned push targets protected branch main and does not use force. Waiting on a human before any push.",
+        "location": "refs/heads/main",
+        "category": "protected-branch"
+      },
+      "recommendation": "Show the git-guard card. Prefer a feature branch. Push to main only after an explicit Allow."
+    },
+    {
+      "id": "money-denylist-dismiss-price-read",
+      "skill": "money-denylist",
+      "severity": "info",
+      "status": "dismissed",
+      "evidence": {
+        "summary": "Read a public price page. No charge, transfer, or payment API call was planned.",
+        "location": "https://example.invalid/pricing",
+        "category": "price-read"
+      },
+      "recommendation": "Leave the money gate idle. A read-only price lookup does not need a dual-confirm card."
+    }
+  ]
+}

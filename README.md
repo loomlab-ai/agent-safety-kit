@@ -58,6 +58,21 @@ ln -s /path/to/agent-safety-kit/skills/permission-gate .cursor/skills/permission
 
 Full scripts: [demos/README.md](demos/README.md).
 
+## Structured findings
+
+Gate decisions can be saved as JSON and checked by another tool. The document shape is [`schemas/findings.schema.json`](schemas/findings.schema.json). [`demos/findings-example.json`](demos/findings-example.json) is a valid sample: a **permission-gate** Deny on `rm -rf`, and a **secret-scrub** hit that records the category and the file location. The sample also includes a **git-guard** warning and a dismissed **money-denylist** note.
+
+| Field | Meaning |
+| --- | --- |
+| `id` | Stable id inside the file |
+| `skill` | `permission-gate`, `git-guard`, `money-denylist`, or `secret-scrub` |
+| `severity` | `info` (note), `warn` (review before continuing), or `block` (do not perform the action) |
+| `status` | `confirmed`, `needs_review`, or `dismissed` |
+| `evidence` | Short summary, plus an optional location and category name |
+| `recommendation` | What the agent should do next |
+
+`status` uses the triage vocabulary common to audit-style skills: `confirmed` (a person or the gate already decided), `needs_review` (waiting on a person), `dismissed` (closed with no further action). A later adapter can place these HITL records beside an audit report. The schemas stay independent; this kit records safety-gate decisions.
+
 ## Design notes
 
 - **Docs-first** — behavior lives in Markdown skills agents already know how to load.
@@ -67,7 +82,7 @@ Full scripts: [demos/README.md](demos/README.md).
 
 ## License
 
-MIT © 2026 LofiSu — see [LICENSE](LICENSE).
+MIT © 2026 LofiSu — standard MIT text in [LICENSE](LICENSE) (`Copyright (c) 2026 LofiSu`).
 
 ## Repo meta
 
@@ -137,6 +152,21 @@ ln -s /path/to/agent-safety-kit/skills/permission-gate .cursor/skills/permission
 
 完整脚本见 [demos/README.md](demos/README.md)。
 
+## 结构化发现（Structured findings）
+
+闸门决策可以存成 JSON，交给别的工具校验。文档形状见 [`schemas/findings.schema.json`](schemas/findings.schema.json)。[`demos/findings-example.json`](demos/findings-example.json) 是一份能通过校验的样例：**permission-gate** 对 `rm -rf` 的拒绝，以及 **secret-scrub** 的一次命中（记下类别和文件位置）。样例里还有一条 **git-guard** 警告和一条已关闭的 **money-denylist** 记录。
+
+| 字段 | 含义 |
+| --- | --- |
+| `id` | 文件内稳定编号 |
+| `skill` | `permission-gate`、`git-guard`、`money-denylist` 或 `secret-scrub` |
+| `severity` | `info`（提示）、`warn`（继续前先看一眼）、`block`（不要执行该动作） |
+| `status` | `confirmed`（已确认）、`needs_review`（待复核）、`dismissed`（已关闭） |
+| `evidence` | 短摘要，以及可选的位置与类别名称 |
+| `recommendation` | 下一步做什么 |
+
+`status` 采用审计风格技能里常见的分流词：`confirmed`（人或闸门已经做出决定）、`needs_review`（等人处理）、`dismissed`（关闭，不再动作）。以后可以用适配层把这些 HITL 记录和审计报告放在一起读。两套 schema 各自独立；本套件记录的是安全闸门决策。
+
 ## 设计要点
 
 - **文档优先** —— 行为写在 Agent 本来就会加载的 Markdown 技能里。
@@ -146,7 +176,7 @@ ln -s /path/to/agent-safety-kit/skills/permission-gate .cursor/skills/permission
 
 ## 许可证
 
-MIT © 2026 LofiSu — 见 [LICENSE](LICENSE)。
+MIT © 2026 LofiSu — 标准 MIT 正文见 [LICENSE](LICENSE)（`Copyright (c) 2026 LofiSu`）。
 
 ## 仓库元信息
 
