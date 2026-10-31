@@ -9,6 +9,8 @@ Short narratives and fake tool-call prompts that show each gate firing. Safe to 
 | 03 — Stripe-style charge | money-denylist | [scenarios/03-money-denylist.md](scenarios/03-money-denylist.md) |
 | 04 — Token in commit | secret-scrub | [scenarios/04-secret-scrub.md](scenarios/04-secret-scrub.md) |
 
+Machine-readable sample of those gates (permission-gate Deny, secret-scrub hit, plus a git-guard warning and a dismissed money note): [findings-example.json](findings-example.json). Document shape: [../schemas/findings.schema.json](../schemas/findings.schema.json).
+
 ## How to use
 
 1. Install the relevant skill (see root README).
@@ -32,6 +34,8 @@ All credentials in these demos are obvious fixtures (`sk-test-…`, `ghp_xxxEXAM
 | 02 — 强推 main | git-guard | [scenarios/02-git-guard.md](scenarios/02-git-guard.md) |
 | 03 — Stripe 风格扣款 | money-denylist | [scenarios/03-money-denylist.md](scenarios/03-money-denylist.md) |
 | 04 — 提交里夹 token | secret-scrub | [scenarios/04-secret-scrub.md](scenarios/04-secret-scrub.md) |
+
+上述闸门的机器可读样例（permission-gate 拒绝、secret-scrub 命中，另附一条 git-guard 警告和一条已关闭的资金记录）：[findings-example.json](findings-example.json)。文档形状见 [../schemas/findings.schema.json](../schemas/findings.schema.json)。
 
 ## 怎么用
 
