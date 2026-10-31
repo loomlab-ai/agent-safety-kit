@@ -1,8 +1,24 @@
 # agent-safety-kit
 
-**HITL safety skills for Cursor / Claude-style agents — pause before delete, force-push, spend, or leak.**
+**Portable Agent Skills for local coding agents — pause before delete, force-push, spend, or leak.**
 
-A docs-first kit of four Agent Skills you copy into an agent's skills folder. No runtime binary: agents read `SKILL.md` and follow the gates.
+For local and IDE coding agents that load Markdown skills (Cursor Agent Skills, Claude Code–style skill folders, OpenCode, and similar). Copy the skill folders into `.cursor/skills` or the equivalent directory. The checks are docs-only soft gates: they are not a substitute for product Auto-review, and they do not plug into a runtime that already requires approval before force-push, spend, destructive shell, or outbound send.
+
+Those agents often run `git push --force`, `rm -rf`, or a payment checkout as soon as they are asked, with no second check. This kit gives them a shared vocabulary and permission cards. It is also a small open-source HITL skill pack you can fork and adapt.
+
+## Who this is for
+
+- Local / IDE coding agents that load portable Agent Skills from Markdown: Cursor Agent Skills, Claude Code–style skill folders, OpenCode, and similar.
+- Install by copying the skill folders into `.cursor/skills` or that agent’s skills directory.
+
+## Who this is not for
+
+- Products that already enforce hard gates in the runtime: built-in Auto-review or approval cards before force-push, spend, destructive shell, or outbound send.
+- Those platforms do not need this kit for their own operations. This kit does not replace their product gates and does not plug into them.
+
+## Soft gates, not hard gates
+
+This kit is **docs-first soft gates**. Behavior lives in `SKILL.md`; the agent must read the skill and obey it. There is no runtime binary, hook, or kernel interceptor. If the model ignores the skill, nothing hard-blocks the action.
 
 ## Skills
 
@@ -47,6 +63,8 @@ ln -s /path/to/agent-safety-kit/skills/permission-gate .cursor/skills/permission
 | Paste API key into PR body or Slack | Secret published | **secret-scrub** redacts or blocks; names category only |
 | First call to an undeclared host | Silent egress | **permission-gate** needs-confirm for egress |
 | Delete remote branch | Ref gone | **git-guard** gated with diff/ref summary |
+
+A product that already shows an approval card before force-push, spend, destructive shell, or outbound send covers the left column with its own hard gate. The right column is what this kit asks a skill-loading agent to do when that gate is absent.
 
 ## 30-second demo
 
@@ -94,9 +112,25 @@ Suggested GitHub About / topics: [REPO_META.md](REPO_META.md).
 
 # agent-safety-kit
 
-**面向 Cursor / Claude 类 Agent 的人机确认（HITL）安全技能包 —— 删除、强推、花钱、泄密之前先停住。**
+**给本地编码 Agent 用的可移植 Agent Skills —— 删除、强推、花钱、泄密之前先停一下。**
 
-文档优先的四件套 Agent Skills：复制进 Agent 的 skills 目录即可。无运行时二进制，Agent 阅读 `SKILL.md` 并按闸门执行。
+面向会加载 Markdown 技能的本地 / IDE 编码 Agent（Cursor Agent Skills、Claude Code 风格的技能目录、OpenCode，以及同类工具）。把技能文件夹复制到 `.cursor/skills` 或等价目录。这些检查是只靠文档的软闸：不能代替产品自带的 Auto-review，也接不进「强推、花钱、破坏性命令、对外发送之前已经要求审批」的运行时。
+
+这类 Agent 常常一被要求就执行 `git push --force`、`rm -rf` 或下单结账，中间不再确认。本套件给它们一套共用说法和确认卡。它也是一份小的开源 HITL 技能包，可以 fork 后按自己的流程改。
+
+## 受众
+
+- 会从 Markdown 加载可移植 Agent Skills 的本地 / IDE 编码 Agent：Cursor Agent Skills、Claude Code 风格的技能目录、OpenCode，以及同类工具。
+- 安装方式：把技能文件夹复制到 `.cursor/skills`，或该 Agent 的 skills 目录。
+
+## 不是给谁
+
+- 运行时已经有硬闸的产品：强推、花钱、破坏性 shell、对外发送之前，自带 Auto-review 或审批卡。
+- 这类平台自己的操作不需要本套件。本套件不替换它们的产品闸门，也不接入那些闸门。
+
+## 软闸，不是硬闸
+
+本套件是**文档优先的软闸**。行为写在 `SKILL.md` 里，Agent 必须阅读并遵守。没有运行时二进制，没有 hook，也没有内核拦截。模型如果无视技能，没有任何硬拦截。
 
 ## 技能一览
 
@@ -141,6 +175,8 @@ ln -s /path/to/agent-safety-kit/skills/permission-gate .cursor/skills/permission
 | 把 API Key 贴进 PR 或 Slack | 密钥公开 | **secret-scrub** 脱敏或拦截；只报类别 |
 | 首次访问未声明的主机 | 静默出网 | **permission-gate** 对出网要求确认 |
 | 删除远端分支 | 引用消失 | **git-guard** 带 diff/引用摘要再确认 |
+
+如果产品在强推、花钱、破坏性命令或对外发送之前已经弹出审批卡，左边一列由那道硬闸覆盖。右边一列是：没有这道硬闸时，本套件要求会加载技能的 Agent 怎么做。
 
 ## 30 秒演示
 
