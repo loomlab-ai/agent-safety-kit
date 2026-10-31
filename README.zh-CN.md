@@ -2,22 +2,22 @@
 
 [English](README.md)
 
-**四份 Markdown 技能，给 Cursor、Claude Code、OpenCode 或同类 Agent 用。** 拷进 `.cursor/skills`（或该 Agent 的 skills 目录）之后，Agent 应在 force-push、`rm -rf`、花钱或泄密之前停下，并给出 Allow / Deny / Modify 确认卡。规则写在 `SKILL.md` 里。模型不遵守时没有硬拦截：不会在 `git push` 上挂 hook，也不是产品自带的 Auto-review。
+四个 Markdown 技能，给 Cursor 和 Claude 用。force-push、`rm -rf`、花钱、把密钥发出去，这些事它会先问你。
+
+只靠 SKILL.md 约定；模型不听就拦不住。
 
 ## 技能
 
-| 技能 | 作用 |
+| 技能 | 干什么 |
 | --- | --- |
-| [permission-gate](skills/permission-gate/SKILL.md) | 删除、破坏性 shell、出网等高影响步骤前的 Allow / Deny / Modify 确认卡 |
-| [git-guard](skills/git-guard/SKILL.md) | force-push、受保护分支、密钥路径、远端删除 |
-| [money-denylist](skills/money-denylist/SKILL.md) | 任何资金动作前先停（hard-stop），或二次确认（dual-confirm） |
-| [secret-scrub](skills/secret-scrub/SKILL.md) | 扫描 commit、PR 正文、聊天和粘贴；脱敏或拦截，不回显密钥 |
+| [permission-gate](skills/permission-gate/SKILL.md) | 删除、危险 shell、访问没提过的主机之前，先给你一张卡：Allow / Deny / Modify |
+| [git-guard](skills/git-guard/SKILL.md) | force-push、改受保护分支、提交密钥文件、删远端分支，先问一声 |
+| [money-denylist](skills/money-denylist/SKILL.md) | 下单、转账、调支付 API 之前先停（hard-stop），或再确认一次（dual-confirm） |
+| [secret-scrub](skills/secret-scrub/SKILL.md) | 扫 commit、PR 正文、聊天、粘贴。中了就打码或拦住，密钥原文不打出来 |
 
-一次 **Allow** 只覆盖这一步。脱敏卡只写类别和位置，不写密钥本身。可以只用一个，也可以四个一起用。
+装一个也行，四个一起也行。**Allow** 只管这一下。下一步还得再问。
 
 ## 安装
-
-Cursor，从本仓库克隆：
 
 ```bash
 git clone https://github.com/loomlab-ai/agent-safety-kit.git
@@ -26,44 +26,50 @@ mkdir -p .cursor/skills
 cp -R skills/permission-gate skills/git-guard skills/money-denylist skills/secret-scrub .cursor/skills/
 ```
 
-Cursor 用户级目录：把同一条 `cp -R` 拷到 `~/.cursor/skills/`。Claude Code：把同样四个文件夹拷到该 Agent 的 skills 目录。可选：用 `ln -s` 把各个 `skills/<name>` 链到 `.cursor/skills/`，不必复制。技能没出现，就新开一个会话。
+上面那条装进当前项目。每个项目都用，把目录换成 `~/.cursor/skills/`。
 
-## 快速开始
+Claude Code、OpenCode，或者别的自己带 skills 目录的：四个文件夹原样放进去。
 
-1. 装上这四个技能。
-2. 对 Agent 说：`Clean the build artifacts. Something like rm -rf dist .cache is fine.`
-3. 删除之前，应先出现 **PERMISSION GATE** 确认卡（What / Touches / Risk）。
-4. 回复 **Deny**，再让它列出这些目录。
-5. force-push、假扣款、`ghp_xxxEXAMPLE`：[demos/README.md](demos/README.md)。按脚本走一遍即可，凭证都是假的。
+不想复制就链上：`ln -s`，把 `skills/<name>` 指到 `.cursor/skills/`。
 
-## 何时触发
+聊天里看不到技能，新开一个对话。
 
-| 风险动作 | 没装 | 装上 |
+## 试一次
+
+1. 四个都装上。
+2. 跟它说：`Clean the build artifacts. Something like rm -rf dist .cache is fine.`
+3. 动手删之前，你会看到一张 **PERMISSION GATE** 卡（What / Touches / Risk）。
+4. 回 **Deny**。再让它把那两个目录列出来。
+5. force-push、假扣款、`ghp_xxxEXAMPLE` 的脚本在 [demos/README.md](demos/README.md)。照着聊就行，token 是假的。
+
+## 什么时候会问
+
+| 你让它做 | 没装 | 装了 |
 | --- | --- | --- |
-| `rm -rf` 清缓存，或清错目录 | 立刻执行 | **permission-gate** 确认卡 → Allow / Deny / Modify |
-| 对 `main` 执行 `git push --force` | 历史被改写 | **git-guard** 先给确认卡；优先普通 push 或功能分支 |
-| 提交 `.env`，或 hunk 里的 token | 进 git 历史 | **git-guard** 路径检查 + **secret-scrub** 扫描 → 拦截或脱敏 |
-| 结账或 Stripe 扣款 | 卡被扣款 | **money-denylist** dual-confirm；不会静默扣款 |
-| API key 出现在 PR 正文或 Slack | 密钥公开 | **secret-scrub** 脱敏或拦截；只报类别 |
-| 第一次访问未声明的主机 | 静默出网 | **permission-gate** 出网前先问 |
-| 删除远端分支 | 引用消失 | **git-guard** 确认卡，附上 diff / ref 摘要 |
+| `rm -rf` 清缓存，或清错目录 | 直接删 | **permission-gate** 出卡：Allow / Deny / Modify |
+| `git push --force` 到 `main` | 历史改掉了 | **git-guard** 先问。去掉 `--force`，或者换条分支 |
+| 提交 `.env`，或 hunk 里夹着 token | 密钥进了 git | **git-guard** 看路径，**secret-scrub** 看内容 |
+| 结账，或 Stripe 扣款 | 钱扣了 | **money-denylist** 要 dual-confirm，不会自己扣 |
+| PR 或 Slack 里冒出 API key | 密钥公开了 | **secret-scrub** 打码或拦住，只告诉你是哪一类 |
+| 去连一个你没提过的主机 | 请求发出去了 | **permission-gate** 先问再连 |
+| 删远端分支 | 分支没了 | **git-guard** 把 diff 和 ref 拿出来，然后等你 |
 
 ## 配置
 
-没有环境变量、CLI 参数，也没有运行时配置文件。
+没有环境变量，没有命令行参数，没有配置文件。
 
-[skills/money-denylist/SKILL.md](skills/money-denylist/SKILL.md) 里的可选商户白名单由人自己维护。Agent 不得自行加商户。白名单为空时，每一笔扣款都要 dual-confirm。本仓库不附带白名单文件。
+商户白名单归你管，见 [skills/money-denylist/SKILL.md](skills/money-denylist/SKILL.md)。agent 不能自己加商户。名单空着，每笔都要 dual-confirm。仓库里没有这份名单。
 
-闸门决策可以存成 JSON。格式见 [`schemas/findings.schema.json`](schemas/findings.schema.json)。样例见 [`demos/findings-example.json`](demos/findings-example.json)：permission-gate 拒绝一次 `rm -rf`、secret-scrub 命中（只记类别和路径）、一条 git-guard 警告，以及一条已关闭的 money-denylist 记录。
+别的工具要查这次决定，就存成 JSON。[`schemas/findings.schema.json`](schemas/findings.schema.json) 是格式，[`demos/findings-example.json`](demos/findings-example.json) 是一份例子：`rm -rf` 被 Deny，密钥命中但 token 没写进去，一条 git 警告，一条扣款记录关掉了。
 
-| 字段 | 含义 |
+| 字段 | 什么意思 |
 | --- | --- |
-| `id` | 文件内稳定编号 |
-| `skill` | `permission-gate`、`git-guard`、`money-denylist` 或 `secret-scrub` |
-| `severity` | `info`（提示）、`warn`（继续前先复核）或 `block`（不要执行） |
-| `status` | `confirmed`（已决定）、`needs_review`（等人处理）或 `dismissed`（已关闭） |
-| `evidence` | 短摘要，以及可选的位置和类别名 |
-| `recommendation` | 下一步做什么 |
+| `id` | 这个文件里的编号 |
+| `skill` | `permission-gate`、`git-guard`、`money-denylist`、`secret-scrub` |
+| `severity` | `info` 记一笔，`warn` 先看一眼，`block` 别做 |
+| `status` | `confirmed` 已经定了，`needs_review` 还等你，`dismissed` 关掉了 |
+| `evidence` | 发生了什么。有路径或类别就附上 |
+| `recommendation` | 接下来做什么 |
 
 ## 许可证
 
@@ -75,4 +81,4 @@ MIT License，SPDX `MIT`。Copyright (c) 2026 LofiSu。全文见 [LICENSE](LICEN
 - Email：[lofisuchat@gmail.com](mailto:lofisuchat@gmail.com)
 - X：[@su_lofi](https://x.com/su_lofi)
 
-建议的 About 与 topics：[REPO_META.md](REPO_META.md)。
+About 和 topics 在 [REPO_META.md](REPO_META.md)。

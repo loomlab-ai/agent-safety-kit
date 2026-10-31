@@ -4,10 +4,10 @@ Packaging record for the public launch. This file does not change visibility, th
 
 ## About (description)
 
-160 characters or fewer. Exact string for the GitHub About field (116 characters):
+160 characters or fewer. Exact string for the GitHub About field (136 characters):
 
 ```
-Ask-before-act Agent Skills: pause before force-push, rm -rf, spend, or secret leaks. Soft HITL for Cursor / Claude.
+Make Cursor and Claude ask before force-push, rm -rf, spend, or a secret leak. Soft only — ignore the skill and nothing stops the agent.
 ```
 
 ## Website
@@ -51,10 +51,10 @@ gh repo edit --visibility public
 
 ## About（简介）
 
-不超过 160 个字符。GitHub About 只用下面这一句英文（116 个字符）：
+不超过 160 个字符。GitHub About 只用下面这一句英文（136 个字符）：
 
 ```
-Ask-before-act Agent Skills: pause before force-push, rm -rf, spend, or secret leaks. Soft HITL for Cursor / Claude.
+Make Cursor and Claude ask before force-push, rm -rf, spend, or a secret leak. Soft only — ignore the skill and nothing stops the agent.
 ```
 
 ## 网站

@@ -2,22 +2,20 @@
 
 [简体中文](README.zh-CN.md)
 
-**Four Markdown skills for Cursor, Claude Code, OpenCode, and similar agents.** Copy them into `.cursor/skills` (or that agent's skills directory) and the agent should pause, with an Allow / Deny / Modify card, before force-push, `rm -rf`, spend, or a secret leak. The rules live in `SKILL.md`. If the model ignores them, nothing hard-blocks the action: there is no hook on `git push`, and this is not a product Auto-review.
+Four Markdown skills that make Cursor, Claude, and similar agents ask before they force-push, wipe a tree, spend money, or dump secrets. Soft only — if the model ignores the skill, nothing hard-stops it.
 
 ## Skills
 
-| Skill | Role |
+| Skill | What it does |
 | --- | --- |
-| [permission-gate](skills/permission-gate/SKILL.md) | Allow / Deny / Modify card before delete, destructive shell, egress, and other high-impact steps |
-| [git-guard](skills/git-guard/SKILL.md) | Force-push, protected branches, secret paths, remote deletes |
-| [money-denylist](skills/money-denylist/SKILL.md) | Hard-stop or dual-confirm before any money movement |
-| [secret-scrub](skills/secret-scrub/SKILL.md) | Scan commits, PR bodies, chat, and pastes; redact or block without echoing the secret |
+| [permission-gate](skills/permission-gate/SKILL.md) | Allow / Deny / Modify before a delete, a destructive shell command, or a host it has never called |
+| [git-guard](skills/git-guard/SKILL.md) | Asks before force-push, a protected-branch rewrite, a secret path, or a remote-branch delete |
+| [money-denylist](skills/money-denylist/SKILL.md) | Hard-stop or dual-confirm before checkout, a transfer, or a payment API |
+| [secret-scrub](skills/secret-scrub/SKILL.md) | Scans a commit, PR body, chat, or paste. Redacts or blocks. Never prints the secret |
 
-One **Allow** covers that step only. Scrub cards name the category and location, never the secret value. Use one skill or all four.
+Install one, or install all four. **Allow** covers that step only. The next risky step asks again.
 
 ## Install
-
-Cursor, from a clone of this repo:
 
 ```bash
 git clone https://github.com/loomlab-ai/agent-safety-kit.git
@@ -26,44 +24,50 @@ mkdir -p .cursor/skills
 cp -R skills/permission-gate skills/git-guard skills/money-denylist skills/secret-scrub .cursor/skills/
 ```
 
-User-level Cursor install: the same `cp -R` into `~/.cursor/skills/`. Claude Code: copy those four folders into that agent's skills directory. Optional: `ln -s` each `skills/<name>` into `.cursor/skills/` instead of copying. If a skill does not show up, start a new session.
+That copy is for this project. For every project, use `~/.cursor/skills/` instead.
 
-## Quick start
+Claude Code or OpenCode: put the same four folders in that agent's skills directory.
+
+Symlink if you'd rather not copy: `ln -s` each `skills/<name>` into `.cursor/skills/`.
+
+Skill still missing? Start a new chat.
+
+## Try it
 
 1. Install the four skills.
-2. Ask: `Clean the build artifacts. Something like rm -rf dist .cache is fine.`
-3. Expect a **PERMISSION GATE** card (What / Touches / Risk) before any delete.
-4. Reply **Deny**, then ask it to list those directories.
-5. Force-push, fake checkout, and `ghp_xxxEXAMPLE`: [demos/README.md](demos/README.md). Walk-throughs only; the credentials are fixtures.
+2. Say: `Clean the build artifacts. Something like rm -rf dist .cache is fine.`
+3. You get a **PERMISSION GATE** card (What / Touches / Risk) before anything is deleted.
+4. Reply **Deny**. Then tell it to list those directories.
+5. Force-push, a fake charge, and `ghp_xxxEXAMPLE`: [demos/README.md](demos/README.md). Read the script with the agent. The tokens are fake.
 
-## When it fires
+## When it asks
 
-| Risky action | Without kit | With kit |
+| You asked for | No skills | With skills |
 | --- | --- | --- |
-| `rm -rf` on a cache or the wrong tree | Runs immediately | **permission-gate** card → Allow / Deny / Modify |
-| `git push --force` to `main` | History rewritten | **git-guard** card before the push; prefer a non-force push or a feature branch |
-| Commit `.env` or a token in a hunk | Lands in git history | **git-guard** path gate + **secret-scrub** scan → block or redact |
-| Checkout or a Stripe charge | Card charged | **money-denylist** dual-confirm; no silent charge |
-| API key in a PR body or Slack | Secret published | **secret-scrub** redacts or blocks; names the category only |
-| First call to an undeclared host | Silent egress | **permission-gate** asks before egress |
-| Delete a remote branch | Ref gone | **git-guard** card with a diff/ref summary |
+| `rm -rf` on a cache, or the wrong tree | Deletes now | **permission-gate** card: Allow / Deny / Modify |
+| `git push --force` to `main` | Rewrites history | **git-guard** asks first. Push without `--force`, or use a branch |
+| Commit `.env`, or a token in a hunk | Secret lands in git | **git-guard** catches the path. **secret-scrub** catches the text |
+| Checkout, or a Stripe charge | Your card is charged | **money-denylist** wants dual-confirm. It does not charge on its own |
+| An API key in a PR or in Slack | The key goes public | **secret-scrub** redacts or blocks, and names the category, not the value |
+| A call to a host you never named | The call goes out | **permission-gate** asks before the call |
+| Delete a remote branch | The ref is gone | **git-guard** shows the diff and the ref, then waits |
 
-## Configuration
+## Config
 
-No environment variables, CLI flags, or runtime config file.
+No env vars. No CLI flags. No config file.
 
-The optional merchant allowlist in [skills/money-denylist/SKILL.md](skills/money-denylist/SKILL.md) belongs to the human. The agent must not add merchants. An empty allowlist means every charge is dual-confirm. This repo does not ship an allowlist file.
+You keep the merchant allowlist. See [skills/money-denylist/SKILL.md](skills/money-denylist/SKILL.md). The agent does not add merchants. Empty list? Every charge needs dual-confirm. No allowlist file in this repo.
 
-Gate decisions can be saved as JSON. Shape: [`schemas/findings.schema.json`](schemas/findings.schema.json). Sample: [`demos/findings-example.json`](demos/findings-example.json) — a permission-gate Deny on `rm -rf`, a secret-scrub hit (category and path only), a git-guard warning, and a dismissed money-denylist note.
+Save the decision as JSON if another tool should read it. Schema: [`schemas/findings.schema.json`](schemas/findings.schema.json). Example: [`demos/findings-example.json`](demos/findings-example.json). One `rm -rf` Deny, one secret hit with the token left out, one git warning, one dismissed money note.
 
 | Field | Meaning |
 | --- | --- |
-| `id` | Stable id inside the file |
+| `id` | Stable id in the file |
 | `skill` | `permission-gate`, `git-guard`, `money-denylist`, or `secret-scrub` |
-| `severity` | `info` (note), `warn` (review before continuing), or `block` (do not perform the action) |
-| `status` | `confirmed` (already decided), `needs_review` (waiting on a person), or `dismissed` (closed) |
-| `evidence` | Short summary, plus an optional location and category name |
-| `recommendation` | What the agent should do next |
+| `severity` | `info` (a note), `warn` (look before you go on), `block` (don't do it) |
+| `status` | `confirmed` (decided), `needs_review` (waiting on you), `dismissed` (closed) |
+| `evidence` | What happened. Add a path or a category when you have one |
+| `recommendation` | What to do next |
 
 ## License
 
@@ -75,4 +79,4 @@ MIT License, SPDX `MIT`. Copyright (c) 2026 LofiSu. The full text is [LICENSE](L
 - Email: [lofisuchat@gmail.com](mailto:lofisuchat@gmail.com)
 - X: [@su_lofi](https://x.com/su_lofi)
 
-Suggested About text and topics: [REPO_META.md](REPO_META.md).
+About text and topics: [REPO_META.md](REPO_META.md).
