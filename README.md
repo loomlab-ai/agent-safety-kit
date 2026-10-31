@@ -82,7 +82,7 @@ Gate decisions can be saved as JSON and checked by another tool. The document sh
 
 ## License
 
-MIT © 2026 LofiSu — see [LICENSE](LICENSE).
+MIT © 2026 LofiSu — standard MIT text in [LICENSE](LICENSE) (`Copyright (c) 2026 LofiSu`).
 
 ## Repo meta
 
@@ -176,7 +176,7 @@ ln -s /path/to/agent-safety-kit/skills/permission-gate .cursor/skills/permission
 
 ## 许可证
 
-MIT © 2026 LofiSu — 见 [LICENSE](LICENSE)。
+MIT © 2026 LofiSu — 标准 MIT 正文见 [LICENSE](LICENSE)（`Copyright (c) 2026 LofiSu`）。
 
 ## 仓库元信息
 
