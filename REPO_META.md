@@ -1,13 +1,13 @@
 # Suggested GitHub repository metadata
 
-Packaging record for the public launch. This change does not set visibility or the homepage. See [.github/PUBLISH_CHECKLIST.md](.github/PUBLISH_CHECKLIST.md).
+Packaging record for the public launch. This file does not change visibility, the homepage, or the live About field and topics. See [.github/PUBLISH_CHECKLIST.md](.github/PUBLISH_CHECKLIST.md). After merge, the coordinator sets About and topics. Do not call the GitHub API from the docs change.
 
 ## About (description)
 
-160 characters or fewer. This text is already the repository description (128 characters):
+160 characters or fewer. Exact string for the GitHub About field (136 characters):
 
 ```
-Docs-first Agent Skills kit: HITL permission gate, git-guard, money denylist, and secret-scrub for Cursor / Claude-style agents.
+Make Cursor and Claude ask before force-push, rm -rf, spend, or a secret leak. Soft only — ignore the skill and nothing stops the agent.
 ```
 
 ## Website
@@ -20,6 +20,8 @@ gh repo edit --homepage https://loomlab-ai.github.io/agent-safety-kit/
 
 ## Topics
 
+Set these eight. Remove `llm` and `ai-agents` if they are still on the repo.
+
 ```
 agent-skills
 hitl
@@ -27,15 +29,13 @@ safety
 permission-gate
 git-guard
 secret-scrub
-llm
 cursor
 claude
-ai-agents
 ```
 
 ## Visibility
 
-The repository stays private in this packaging change. After merge, the coordinator runs:
+Visibility stays unchanged in this docs change. When the coordinator publishes:
 
 ```bash
 gh repo edit --visibility public
@@ -47,14 +47,14 @@ gh repo edit --visibility public
 
 # GitHub 仓库元信息
 
-公开上架的打包记录。本变更不设置可见性，也不设置 homepage。见 [.github/PUBLISH_CHECKLIST.md](.github/PUBLISH_CHECKLIST.md)。
+公开上架的打包记录。这里不改可见性、homepage，也不改线上 About 和 topics。见 [.github/PUBLISH_CHECKLIST.md](.github/PUBLISH_CHECKLIST.md)。合并后由协调人设置 About 和 topics。文档改动不要调用 GitHub API。
 
 ## About（简介）
 
-不超过 160 个字符。下面这段已经是仓库简介（128 个字符）：
+不超过 160 个字符。GitHub About 只用下面这一句英文（136 个字符）：
 
 ```
-Docs-first Agent Skills kit: HITL permission gate, git-guard, money denylist, and secret-scrub for Cursor / Claude-style agents.
+Make Cursor and Claude ask before force-push, rm -rf, spend, or a secret leak. Soft only — ignore the skill and nothing stops the agent.
 ```
 
 ## 网站
@@ -67,7 +67,7 @@ gh repo edit --homepage https://loomlab-ai.github.io/agent-safety-kit/
 
 ## Topics
 
-与英文同一组：
+设成下面八个。如果仓库上还有 `llm` 和 `ai-agents`，去掉。
 
 ```
 agent-skills
@@ -76,15 +76,13 @@ safety
 permission-gate
 git-guard
 secret-scrub
-llm
 cursor
 claude
-ai-agents
 ```
 
 ## 可见性
 
-本次打包保持私有。合并后由协调人执行：
+这次文档改动不改可见性。协调人公开时执行：
 
 ```bash
 gh repo edit --visibility public
