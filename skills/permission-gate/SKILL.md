@@ -1,12 +1,25 @@
 ---
 name: permission-gate
-description: Generic human-in-the-loop (HITL) gate that pauses before dangerous agent actions and requires Allow, Deny, or Modify.
-when-to-use: Before any action that deletes data, runs destructive shell, touches credentials, sends messages externally, moves money, force-pushes git, or reaches undeclared network targets. Load this skill whenever the agent is about to do something irreversible or high-impact.
+description: "Ask for Allow, Deny, or Modify before a destructive or outbound action. Use before rm -rf, find -delete, docker system prune, kubectl delete, terraform destroy, DROP DATABASE, chmod -R, mkfs, sudo, reading or writing .env or a vault, sending email or Slack, or the first call to a host the user did not name. Also when the user says clean, wipe, prune, drop the database, or reset a directory."
 ---
 
 # permission-gate
 
 Stop once. Ask clearly. Proceed only after a human decision.
+
+## Triggers
+
+Load this skill before the tool call. A casual sentence still counts, including "rm -rf is fine."
+
+| User said | Planned command or call |
+| --- | --- |
+| Clean the build output. `rm -rf` is fine. | `rm -rf dist .cache`, `rm -rf "$OUT"`, `find . -delete` |
+| Wipe the database and start over | `DROP DATABASE app`, `kubectl delete ns demo`, `terraform destroy` |
+| Free the disk, prune Docker | `docker system prune -af --volumes` |
+| Post the update to Slack | Slack `chat.postMessage`, email send, webhook POST |
+| Call the partner API | first request to a host the user never named |
+
+`rm -rf /`, `rm -rf ~`, `rm -rf .`, and any path outside the repo still get a card. Do not run the command while waiting.
 
 ## Purpose
 
@@ -27,8 +40,8 @@ Treat as **needs-confirm** if the planned step matches any of:
 
 | Category | Examples |
 | --- | --- |
-| Delete / overwrite | `rm -rf`, truncate, wipe DB tables, overwrite large trees |
-| Destructive shell | `chmod -R`, disk format, kill unrelated processes, `sudo` for system changes |
+| Delete / overwrite | `rm -rf`, `rm -rf "$DIR"`, `find -delete`, truncate, `DROP TABLE` / `DROP DATABASE`, `kubectl delete`, `terraform destroy` |
+| Destructive shell | `chmod -R`, `mkfs`, `docker system prune -af --volumes`, kill unrelated processes, `sudo` for system changes |
 | Credentials | Read/write vault, `.env`, keys, tokens, password managers |
 | Egress | First contact with a new host/API, upload of local files, webhook posts |
 | Messaging | Send email, Slack, chat, social posts under the user's name |
@@ -100,6 +113,20 @@ See `demos/scenarios/01-permission-gate.md` for a full walkthrough.
 
 停一次。问清楚。只有人做了决定再继续。
 
+## 触发
+
+工具调用之前先加载。用户说「`rm -rf` 就行」也算。
+
+| 用户怎么说 | 计划中的命令或调用 |
+| --- | --- |
+| 清一下构建产物，`rm -rf` 就行 | `rm -rf dist .cache`、`rm -rf "$OUT"`、`find . -delete` |
+| 把数据库清掉重来 | `DROP DATABASE app`、`kubectl delete ns demo`、`terraform destroy` |
+| 磁盘满了，清 Docker | `docker system prune -af --volumes` |
+| 把这条更新发到 Slack | Slack `chat.postMessage`、发邮件、webhook POST |
+| 调一下合作方的 API | 第一次请求用户没点名的主机 |
+
+`rm -rf /`、`rm -rf ~`、`rm -rf .`，以及仓库外的路径，照样出卡。等人的时候不要先跑命令。
+
 ## 用途
 
 Agent 跑得快，人需要在不可逆或高影响步骤前再看一眼。本技能定义**通用 HITL 权限闸门**：给计划中的动作分类，需要时出确认卡，等待 **允许（Allow）**、**拒绝（Deny）** 或 **修改（Modify）**。
@@ -119,8 +146,8 @@ Agent 跑得快，人需要在不可逆或高影响步骤前再看一眼。本�
 
 | 类别 | 示例 |
 | --- | --- |
-| 删除 / 覆盖 | `rm -rf`、截断、清空表、大面积覆盖目录树 |
-| 破坏性 shell | `chmod -R`、格式化磁盘、杀掉无关进程、用 `sudo` 改系统 |
+| 删除 / 覆盖 | `rm -rf`、`rm -rf "$DIR"`、`find -delete`、截断、`DROP TABLE` / `DROP DATABASE`、`kubectl delete`、`terraform destroy` |
+| 破坏性 shell | `chmod -R`、`mkfs`、`docker system prune -af --volumes`、杀掉无关进程、用 `sudo` 改系统 |
 | 凭证 | 读写保险库、`.env`、密钥、token、密码管理器 |
 | 出网 | 首次访问新主机/API、上传本地文件、打 webhook |
 | 发消息 | 以用户名义发邮件、Slack、聊天、社交媒体 |

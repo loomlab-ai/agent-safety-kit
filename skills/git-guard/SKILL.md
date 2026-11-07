@@ -1,12 +1,25 @@
 ---
 name: git-guard
-description: Confirm or block force-push, protected-branch rewrites, secret commits, and remote/branch deletion; summarize diffs before risky git ops.
-when-to-use: Before any non-routine git write — especially push --force, branch -D on remotes, amending pushed history, or commits that may include .env / keys. Also when reviewing a staged diff that looks like it contains secrets.
+description: "Ask before a destructive git write and summarize the diff first. Use before git push --force, git push --force-with-lease, push or amend of main, master, or release/*, git push --delete, git push origin :branch, git reset --hard, git clean -fdx, git filter-repo, git remote remove, or git add of .env, *.pem, *.key, credentials.json, or .ssh. Also when the user says force-push, rewrite history, or make remote main match local."
 ---
 
 # git-guard
 
 Make destructive and secret-leaking git operations impossible to do silently.
+
+## Triggers
+
+Load this skill before the git command. "Update the remote" is often a force-push. Gate it anyway.
+
+| User said | Planned command |
+| --- | --- |
+| Rebase is done. Make remote main match. | `git push --force origin main` |
+| Use `--force-with-lease`, that is safe | `git push --force-with-lease origin main` |
+| Delete the old remote branch | `git push origin --delete old-feature` or `git push origin :old-feature` |
+| Discard my local edits | `git reset --hard` or `git clean -fdx` |
+| Commit `.env` so CI can read it | `git add .env`, `git add *.pem`, `git add credentials.json` |
+
+Show the card before the command. `--force-with-lease` is still gated.
 
 ## Purpose
 
@@ -104,6 +117,20 @@ See `demos/scenarios/02-git-guard.md`.
 # git-guard
 
 让破坏性、会泄密的 git 操作无法静默完成。
+
+## 触发
+
+git 命令之前先加载。「把远端更新一下」经常是 force-push，照样要闸。
+
+| 用户怎么说 | 计划中的命令 |
+| --- | --- |
+| rebase 好了，让远端 main 跟上 | `git push --force origin main` |
+| 用 `--force-with-lease`，这个安全 | `git push --force-with-lease origin main` |
+| 把旧的远端分支删掉 | `git push origin --delete old-feature` 或 `git push origin :old-feature` |
+| 本地改动不要了 | `git reset --hard` 或 `git clean -fdx` |
+| 把 `.env` 提交上去，CI 要用 | `git add .env`、`git add *.pem`、`git add credentials.json` |
+
+先出卡，再跑命令。`--force-with-lease` 也要闸。
 
 ## 用途
 

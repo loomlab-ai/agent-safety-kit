@@ -103,4 +103,37 @@ jobs:
               if needle in blob:
                   fail(f"demo embeds secret-like text {needle!r}")
           print(f"findings demo ok ({len(doc['findings'])} records)")
+
+          # Skill routers read description only. Triggers for real commands must live there.
+          skill_needles = {
+              "permission-gate": ["rm -rf", "DROP DATABASE", "docker system prune"],
+              "git-guard": ["git push --force", ".env", "git reset --hard"],
+              "money-denylist": ["checkout", "Stripe", "Confirm order"],
+              "secret-scrub": ["git commit", "ghp_", "paste the error"],
+          }
+          for skill, needles in skill_needles.items():
+              text = Path(f"skills/{skill}/SKILL.md").read_text()
+              if not text.startswith("---\n"):
+                  fail(f"{skill}: missing frontmatter")
+              end = text.find("\n---\n", 4)
+              if end < 0:
+                  fail(f"{skill}: unclosed frontmatter")
+              front = text[4:end]
+              if re.search(r"(?m)^when-to-use:", front):
+                  fail(f"{skill}: move triggers into description; when-to-use is not read")
+              matched = re.search(r'(?m)^name: (\S+)\s*$', front)
+              if matched is None or matched.group(1) != skill:
+                  fail(f"{skill}: name must match the directory")
+              quoted = re.search(r'(?m)^description: "(.*)"\s*$', front)
+              if quoted is None:
+                  fail(f"{skill}: description must be one double-quoted line")
+              description = quoted.group(1)
+              if not 1 <= len(description) <= 1024:
+                  fail(f"{skill}: description length {len(description)}")
+              for needle in needles:
+                  if needle not in description:
+                      fail(f"{skill}: description missing {needle!r}")
+              if "## Triggers" not in text or "## 触发" not in text:
+                  fail(f"{skill}: missing trigger examples")
+          print("skill descriptions name real commands")
           PY

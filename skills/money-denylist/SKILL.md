@@ -1,12 +1,25 @@
 ---
 name: money-denylist
-description: Hard-stop or dual-confirm before shopping, checkout, transfers, Sponsors, wallets, or payment APIs; optional merchant allowlist; never move money silently.
-when-to-use: Before any purchase, cart checkout, money transfer, tip/Sponsor, wallet send, subscription start that bills, or call to a payment API. Also when a tool result offers a "Pay" / "Buy now" / "Confirm order" step.
+description: "Hard-stop or dual-confirm before money moves. Use before checkout, Buy now, place order, a bank or wallet transfer, a wire, a crypto send, GitHub Sponsors, Patreon, Ko-fi, a Stripe, PayPal, Square, or Adyen charge, capture, or payout, or starting a paid subscription. Also when a tool result says Pay, Confirm order, or charge a card on file."
 ---
 
 # money-denylist
 
 Money never moves without an explicit human yes — preferably two.
+
+## Triggers
+
+Load this skill before the charge. "Buy it" is intent, not approval to capture.
+
+| User said | Planned action |
+| --- | --- |
+| Buy the Pro plan | Checkout or `subscriptions.create` |
+| Charge the card on file, $49.99 | `stripe.charges.create`, PaymentIntent confirm, PayPal capture |
+| Sponsor that repo, five dollars is fine | GitHub Sponsors, Patreon, or Ko-fi checkout |
+| Send 0.1 ETH to this address | wallet or crypto transfer |
+| The cart looks right, check out | Place order, Buy now, Confirm order |
+
+Filling a cart without calling a charge API is not a trigger. The Pay / Confirm order step is.
 
 ## Purpose
 
@@ -98,6 +111,20 @@ See `demos/scenarios/03-money-denylist.md`.
 # money-denylist
 
 没有人的明确同意 —— 最好是两次 —— 钱不能动。
+
+## 触发
+
+扣款之前先加载。「买吧」只是意图，不是 capture 的批准。
+
+| 用户怎么说 | 计划中的动作 |
+| --- | --- |
+| 买 Pro 套餐 | Checkout 或 `subscriptions.create` |
+| 用已存的卡扣 $49.99 | `stripe.charges.create`、PaymentIntent confirm、PayPal capture |
+| 给那个仓库赞助五美元 | GitHub Sponsors、Patreon 或 Ko-fi 结账 |
+| 往这个地址转 0.1 ETH | 钱包或链上转账 |
+| 购物车没问题，结账 | Place order、Buy now、Confirm order |
+
+只把购物车填上、不调扣款 API，不算触发。Pay / Confirm order 这一步才算。
 
 ## 用途
 
