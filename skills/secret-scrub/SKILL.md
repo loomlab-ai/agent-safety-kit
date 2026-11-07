@@ -1,12 +1,24 @@
 ---
 name: secret-scrub
-description: Before commit, PR body, chat send, or paste to the web, scan for tokens, keys, and ID-like secrets; on hit redact or block and name the category only — never echo the secret.
-when-to-use: Before git commit or push, before opening/updating a PR description, before sending chat/email/Slack, before pasting agent output into a browser form, or whenever staged diffs / outbound text may contain credentials.
+description: "Scan outbound text for secrets, then redact or block without printing the value. Use before git commit, a commit message, git push, a pull request or MR body, a review comment, email, Slack, chat, or pasting a log into an issue or pastebin. Also when the user says share this config or paste the error. Trigger on .env contents, ghp_, github_pat_, sk-, AKIA, PEM private keys, xoxb-, password=, and database URLs that embed a password."
 ---
 
 # secret-scrub
 
 Scan outbound text. Redact or block. Never repeat the secret.
+
+## Triggers
+
+Scan before the text leaves. "Just commit" and "paste the error" still get a scan.
+
+| About to send | What usually matches |
+| --- | --- |
+| `git commit` of config or a log | `.env` hunk, `ghp_`, `github_pat_`, `sk-`, `AKIA` |
+| Pull request body or review comment | `password=`, PEM `BEGIN PRIVATE KEY`, `xoxb-` |
+| Slack, email, or chat | `postgres://user:…@host/db` and other URLs with a password |
+| Paste into an issue or pastebin | terminal env dump, `AWS_SECRET_ACCESS_KEY=` |
+
+Name the category and the location. Do not print the matched value on the card.
 
 ## Purpose
 
@@ -111,6 +123,19 @@ See `demos/scenarios/04-secret-scrub.md`.
 # secret-scrub
 
 扫描即将外发的文本。脱敏或拦截。绝不复述密钥本身。
+
+## 触发
+
+文本出去之前先扫。「先提交」和「把报错贴出去」也要扫。
+
+| 即将发出 | 常见命中 |
+| --- | --- |
+| 提交配置或日志 | `.env` hunk、`ghp_`、`github_pat_`、`sk-`、`AKIA` |
+| PR 正文或评审评论 | `password=`、PEM `BEGIN PRIVATE KEY`、`xoxb-` |
+| Slack、邮件或聊天 | `postgres://user:…@host/db` 这类带密码的 URL |
+| 贴到 issue 或 pastebin | 终端环境变量转储、`AWS_SECRET_ACCESS_KEY=` |
+
+只报类别和位置。卡上不要打出命中的值。
 
 ## 用途
 
