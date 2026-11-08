@@ -14,6 +14,18 @@
       "recommendation": "Stop the delete and do not retry it. List the directories if the human asks for a safer look."
     },
     {
+      "id": "permission-gate-scratch-home",
+      "skill": "permission-gate",
+      "severity": "block",
+      "status": "needs_review",
+      "evidence": {
+        "summary": "Planned scratch HOME would empty the real HOME and reset ~/.ssh, an agent skill directory, and the system interpreter. Waiting on Allow, Deny, or Modify.",
+        "location": "$HOME",
+        "category": "scratch-home"
+      },
+      "recommendation": "Show the permission card and do not run the wipe. Wait for Allow, Deny, or Modify."
+    },
+    {
       "id": "secret-scrub-github-token-smoke",
       "skill": "secret-scrub",
       "severity": "block",
