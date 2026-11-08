@@ -33,6 +33,7 @@ jobs:
           echo "demo: demos/findings-example.json"
           test -f schemas/findings.schema.json
           test -f demos/findings-example.json
+          test -f demos/scenarios/05-scratch-home.md
           python3 - <<'PY'
           import json, re, sys
           from pathlib import Path
@@ -98,6 +99,9 @@ jobs:
           missing = {"permission-gate", "secret-scrub"} - skills
           if missing:
               fail(f"demo missing skills {sorted(missing)}")
+          categories = {item["evidence"].get("category") for item in doc["findings"]}
+          if "scratch-home" not in categories:
+              fail("demo missing scratch-home finding")
           blob = json.dumps(doc)
           for needle in ("ghp_", "sk-", "AKIA", "BEGIN ", "password="):
               if needle in blob:
@@ -106,7 +110,7 @@ jobs:
 
           # Skill routers read description only. Triggers for real commands must live there.
           skill_needles = {
-              "permission-gate": ["rm -rf", "DROP DATABASE", "docker system prune"],
+              "permission-gate": ["rm -rf", "DROP DATABASE", "docker system prune", "HOME", "~/.ssh", "interpreter"],
               "git-guard": ["git push --force", ".env", "git reset --hard"],
               "money-denylist": ["checkout", "Stripe", "Confirm order"],
               "secret-scrub": ["git commit", "ghp_", "paste the error"],

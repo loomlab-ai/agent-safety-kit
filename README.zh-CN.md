@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-四个 Markdown 技能，给 Cursor 和 Claude 用。force-push、`rm -rf`、花钱、把密钥发出去，这些事它会先问你。
+四个 Markdown 技能，给 Cursor 和 Claude 用。force-push、`rm -rf`、清空真实 HOME、花钱、把密钥发出去，这些事它会先问你。
 
 只靠 SKILL.md 约定；模型不听就拦不住。
 
@@ -10,7 +10,7 @@
 
 | 技能 | 干什么 |
 | --- | --- |
-| [permission-gate](skills/permission-gate/SKILL.md) | 删除、危险 shell、访问没提过的主机之前，先给你一张卡：Allow / Deny / Modify |
+| [permission-gate](skills/permission-gate/SKILL.md) | 删除、scratch HOME 清空、危险 shell、访问没提过的主机之前，先给你一张卡：Allow / Deny / Modify |
 | [git-guard](skills/git-guard/SKILL.md) | force-push、改受保护分支、提交密钥文件、删远端分支，先问一声 |
 | [money-denylist](skills/money-denylist/SKILL.md) | 下单、转账、调支付 API 之前先停（hard-stop），或再确认一次（dual-confirm） |
 | [secret-scrub](skills/secret-scrub/SKILL.md) | 扫 commit、PR 正文、聊天、粘贴。中了就打码或拦住，密钥原文不打出来 |
@@ -47,6 +47,7 @@ Claude Code、OpenCode，或者别的自己带 skills 目录的：四个文件�
 | 你让它做 | 没装 | 装了 |
 | --- | --- | --- |
 | `rm -rf` 清缓存，或清错目录 | 直接删 | **permission-gate** 出卡：Allow / Deny / Modify |
+| 为了隔离，去清空真实 HOME、`~/.ssh`、skill 目录或 interpreter | 这些路径被清掉 | **permission-gate** 出卡：Allow / Deny / Modify |
 | `git push --force` 到 `main` | 历史改掉了 | **git-guard** 先问。去掉 `--force`，或者换条分支 |
 | 提交 `.env`，或 hunk 里夹着 token | 密钥进了 git | **git-guard** 看路径，**secret-scrub** 看内容 |
 | 结账，或 Stripe 扣款 | 钱扣了 | **money-denylist** 要 dual-confirm，不会自己扣 |
@@ -60,7 +61,7 @@ Claude Code、OpenCode，或者别的自己带 skills 目录的：四个文件�
 
 商户白名单归你管，见 [skills/money-denylist/SKILL.md](skills/money-denylist/SKILL.md)。agent 不能自己加商户。名单空着，每笔都要 dual-confirm。仓库里没有这份名单。
 
-别的工具要查这次决定，就存成 JSON。[`schemas/findings.schema.json`](schemas/findings.schema.json) 是格式，[`demos/findings-example.json`](demos/findings-example.json) 是一份例子：`rm -rf` 被 Deny，密钥命中但 token 没写进去，一条 git 警告，一条扣款记录关掉了。
+别的工具要查这次决定，就存成 JSON。[`schemas/findings.schema.json`](schemas/findings.schema.json) 是格式，[`demos/findings-example.json`](demos/findings-example.json) 是一份例子：`rm -rf` 被 Deny，一次 scratch HOME 清空还等你，密钥命中但 token 没写进去，一条 git 警告，一条扣款记录关掉了。
 
 | 字段 | 什么意思 |
 | --- | --- |
